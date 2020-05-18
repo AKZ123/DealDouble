@@ -1,0 +1,119 @@
+﻿@model DealDouble.Web.ViewModels.UsersListingViewModel
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>UserName</th>
+            <th>Email </th>
+            <th>Country </th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Users != null && Model.Users.Count > 0)
+        {
+            foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.Country)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.Roles.Count)
+                    </td>
+
+                    <td>
+                        @*
+                            @Html.ActionLink("Details", "Details", new { id = user.Id }) |
+                            <button class="moreButton btn btn-primary" data-id="@user.Id" data-toggle="modal" data-target="#formModal">More Details</button>
+                        *@
+                        <a href="@Url.Action("userDetails","Dashboard",new { userID=user.Id})" class="moreButton btn btn-primary">More Details</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td class="text-center" colspan="7">No result found.</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@if (Model.Pager != null && Model.Pager.TotalPages > 0)
+{
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            @if (Model.Pager.CurrentPage == 1)
+            {
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">Previous</a>
+            </li>
+            }
+            else
+            {
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("Users","Dashboard",new { pageNo=Model.Pager.CurrentPage - 1 ,roleID=Model.RoleID, searchTerm=Model.SearchTerm})">Previous</a>
+            </li>
+            }
+
+            @for (int page = Model.Pager.StartPage; page < Model.Pager.EndPage + 1; page++)
+            {
+                var active = page == Model.Pager.CurrentPage ? "active" : string.Empty;
+            <li class="page-item @active"><a class="page-link" href="@Url.Action("Users","Dashboard",new { pageNo = page,roleID=Model.RoleID, searchTerm=Model.SearchTerm })">@page</a></li>
+            }
+
+            @if (Model.Pager.CurrentPage == Model.Pager.EndPage)
+            {
+            <li class="page-item disabled">
+                <a class="page-link" href="#">Next</a>
+            </li>
+            }
+            else
+            {
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("Users","Dashboard",new { pageNo=Model.Pager.CurrentPage + 1 ,roleID=Model.RoleID, searchTerm=Model.SearchTerm})">Next</a>
+            </li>
+            }
+        </ul>
+    </nav>
+}
+
+
+<script>
+    //$(".moreButton").click(function () {
+    //    debugger;
+    //    $.ajax({
+    //        url: "/Dashboard/userDetails/",
+    //        method: "get",
+    //        data: {
+    //            userID: $(this).attr("data-id"),
+    //            IsPartial: true
+    //        }
+    //    })
+    //        .done(function (response) {
+    //            $("#contentArea").html(response);
+    //        })
+    //        .fail(function (XMLHttpRequest, textStatus, erroeThrown) {
+    //            alert("Fail");
+    //        });
+    //});
+
+    $(".deleteButton").click(function () {
+        $('#deleteModal').modal('toggle');
+        $('#mDeleteButton').attr("data-recordID", $(this).attr("data-id"));
+    });
+</script>

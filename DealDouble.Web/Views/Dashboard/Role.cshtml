@@ -1,0 +1,94 @@
+﻿@model DealDouble.Web.ViewModels.RolesViewModel
+@{
+    ViewBag.Title = "Role";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+
+<div class="row mt-2">
+    <div class="col-lg-12 col-md-12">
+        <h2>Roles</h2>
+        <hr />
+    </div>
+    <div class="col-md-10">
+        <form method="post">
+            @* for Hide URL set method="post" & on Action Controlar set [HttpGet] to "" *@
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search" name="searchTerm" value="@Model.SearchTerm" />
+                <button type="submit" class="form-control btn btn-primary"><i class="fas fa-search"></i>Search</button>
+                <a href="@Url.Action("Role","Dashboard")" role="button" class="form-control btn btn-primary">Reset</a>
+                @*<button type="button" class="form-control btn btn-success" id="createButton"><i class="fas fa-plus"></i>Create</button>*@
+            </div>
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="items" value="10" />
+
+        </form>
+    </div>
+    <div class="col-lg-12" id="listingArea">
+        @{ Html.RenderAction("RoleListing", new { searchTerm = Model.SearchTerm, pageNo = Model.PageNo });}
+    </div>
+</div>
+
+
+<div id="imageTemplate" style="display:none">
+    <img class='image img-thumbnail' src='' style="width:200px; height:200px" />
+</div>
+
+
+<script>
+            $("#createButton").click(function () {
+                $.ajax({
+                    url: "@Url.Action("Create", "Auctions")",
+                    type: "get"
+                }).done(function (response) {
+                    $("#contentArea").html(response);
+                }).fail(function (XMLHttpRequest, textStatus, erroeThrown) {
+                    alert("Fail");
+                });
+            });
+
+            $("#mDeleteButton").click(function () {
+                $.ajax({
+                    url: "/Auctions/Delete/",
+                    type: "post",
+                    data: {
+                        ID: $(this).attr("data-recordID")
+                    }
+                }).done(function (response) {
+                    $("#listingArea").html(response);
+                    $('#deleteModal').modal('toggle');
+                }).fail(function (XMLHttpRequest, textStatus, erroeThrown) {
+                    alert("Fail");
+                });
+            });
+
+            //for button which is Name="AuctionPictures"
+            function AttachNewImage(imageURL, imageID) {
+                //JQuery object
+                var $newimgHtml = $("#imageTemplate").clone();
+
+                $newimgHtml.find(".image").attr("src", "/Content/images/" + imageURL);
+                $newimgHtml.find(".image").attr("data-id", imageID);
+
+                $("#pictureArea").append($newimgHtml.html());
+
+                RemoveImagesOnClick();
+            }
+
+            function RemoveImagesOnClick() {
+                $("#pictureArea .image").click(function () {
+                    $(this).remove();
+                });
+            }
+
+            function ReloadListing() {
+                $.ajax({
+                    url: "@Url.Action("Listing", "Auctions")",
+                    type: "get"
+                }).done(function (response) {
+                    $("#listingArea").html(response);
+                });
+            }
+
+</script>
+

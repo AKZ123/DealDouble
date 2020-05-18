@@ -1,0 +1,136 @@
+﻿@model DealDouble.Web.ViewModels.CreateAuctionViewModel
+@{
+    ViewBag.Title = "Create";
+}
+
+<div class="modal-header">
+    <h5 class="modal-title">Creat Auction</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<form id="CreateForm" method="post" action="/Auctions/Create/">
+    <div class="modal-body">
+        <div class="form-group">
+            <label>Title</label>
+            <input class="form-control" name="Title" value="@Model.Title" required minlength="2" maxlength="150"/>
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select class="form-control" name="CategoryID">
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category.ID">@category.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input class="form-control" name="Description" value="@Model.Description"/>
+        </div>
+
+        <div class="form-group">
+            <label>ActualAmount</label>
+            <input class="form-control" name="ActualAmount" value="@Model.ActualAmount"/>
+        </div>
+
+        <div class="form-group">
+            <label>StartingTime</label>
+            <input class="form-control" name="StartingTime" value="@Model.StartingTime"/>
+        </div>
+        <div class="form-group">
+            <label>EndingTime</label>
+            <input class="form-control" name="EndingTime" value="@Model.EndingTime"/>
+        </div>
+        <div class="form-group">
+            <label>Select Pictures</label>
+            <input id="auctionPicters" class="form-control" name="AuctionPictures" type="file" multiple/>
+
+            <div id="pictureArea" class="mt-2"></div>
+            <input type="hidden" name="AuctionPictures" id="pictureIDs"/>
+        </div>
+
+        <div id="formErrors" class="form-group bg-danger" style="display:none">
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-secondaey" type="button" data-dismiss="modal">Close</button>
+        <button class="btn btn-success" type="button" id="saveButton">Save</button>
+    </div>
+</form>
+
+
+<script>
+    $("#saveButton").click(function () {
+        
+        var imageIDs = [];
+
+        $("#pictureArea .image").each(function () {
+            var imageID = $(this).attr("data-id");
+
+            imageIDs.push(imageID);
+        });
+
+        $("#pictureIDs").val(imageIDs.join());
+
+        $.ajax({
+            type:'POST',
+            url: '/Auctions/Create',
+            //method: "post",
+            data: $("#CreateForm").serialize()
+        })
+        .done(function (response) {
+            
+            if (response.Success) {
+                ReloadListing();
+                //$("#listingArea").html(response);
+                $('#formModal').modal('toggle');
+            }
+            else {
+                $("#formErrors").html(response.Error);
+                $("#formErrors").show();
+            }
+
+        })
+        .fail(function (XMLHttpRequest, textStatus, erroeThrown) {
+            alert("Fail");
+        });
+    });
+
+    $("#auctionPicters").change(function () {
+        //JSon
+        var pictures = this.files;
+        var PicturesData = new FormData();
+        for (var i = 0; i < pictures.length; i++) {
+            PicturesData.append("Picture", pictures[i]);
+        }
+        $.ajax({
+            type: 'POST',
+            url: "@Url.Action("UploadPictures", "Shared")",
+            data: PicturesData,
+            dataType: 'json',
+            processData: false,
+            contentType:false
+        })
+        .done(function (responses) {
+            
+            //var picIDs = '';
+            for (var i = 0; i < responses.length; i++) {
+                var picResponse = responses[i];
+
+                AttachNewImage(picResponse.pictureURL, picResponse.ID);
+
+                //var imgHtml = "<img class='img-fluid' src='/Content/images/" + picResponse.pictureURL + "' />";
+                //$("#pictureArea").append(imgHtml);
+
+                //picIDs = picIDs + "," + picResponse.ID;
+            }
+            //$("#pictureIDs").val(picIDs);
+        })
+        .fail(function (XMLHttpRequest, textStatus, erroeThrown) {
+            alert("Fail");
+        });
+    });
+
+</script>

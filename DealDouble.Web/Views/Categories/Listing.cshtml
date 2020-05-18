@@ -1,0 +1,58 @@
+﻿@model DealDouble.Web.ViewModels.CategoriesListingViewModel
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Description</th>
+            <th>Auction Number</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model.Categories)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => category.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => category.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => category.Auction.Count)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })|
+                    <button class="editButton btn btn-primary" data-id="@category.ID" data-toggle="modal" data-target="#formModal">Edit</button>
+                    <button class="deleteButton btn btn-danger" data-id="@category.ID" data-toggle="modal" data-target="#deleteModal">delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(".editButton").click(function () {
+        $.ajax({
+            url: "/Categories/Edit/",
+            method: "get",
+            data: {
+                ID: $(this).attr("data-id")
+            }
+        })
+            .done(function (response) {
+                $("#contentArea").html(response);
+            })
+            .fail(function (XMLHttpRequest, textStatus, erroeThrown) {
+                alert("Fail");
+            });
+    });
+
+    $(".deleteButton").click(function () {
+        $('#deleteModal').modal('toggle');
+        $('#mDeleteButton').attr("data-recordID", $(this).attr("data-id"));
+    });
+</script>

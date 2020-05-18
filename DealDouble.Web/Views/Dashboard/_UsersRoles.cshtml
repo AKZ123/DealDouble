@@ -1,0 +1,114 @@
+﻿@model DealDouble.Web.ViewModels.UserRolesViewModel
+
+@if (Model != null)
+{
+    <h4>Current User Roles</h4>
+    if (Model.UserRoles != null && Model.UserRoles.Count() > 0)
+    {
+        var i = 1;
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var role in Model.UserRoles)
+                {
+                <tr>
+                    <td scope="row">@i</td>
+                    <td>@role.Id</td>
+                    <td>@role.Name</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btnDeleteRole" data-id="@role.Id">Delete</button>
+                    </td>
+                </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            This User does not have any Role.
+        </div>
+    }
+
+    var WillAssignUserRoles = Model.AvailableRoles.Where(AllRole => Model.UserRoles.FirstOrDefault(uRole => uRole.Id == AllRole.Id) == null).ToList();
+
+    if (WillAssignUserRoles != null && WillAssignUserRoles.Count > 0)
+    {
+        <h5>
+            Assign New Role
+        </h5>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td>
+                        <select class="form-control" id="sltAssignRoles">
+                            <option value="">Please Select</option>
+                            @foreach (var role in WillAssignUserRoles)
+                            {
+                                <option value="@role.Id">@role.Name</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <button id="btnAssignRole" type="button" class="btn btn-success">Assign</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+}
+
+
+<script>
+    $("#btnAssignRole").click(function () {
+        debugger;
+        var roleId = $("#sltAssignRoles").val();
+
+        if (roleId != undefined && roleId != null) {
+            $.ajax({
+                url: "@Url.Action("AssignUserRole", "Dashboard", new {userID = Model.User.Id })",
+                data:{
+                    roleID : roleId
+                }
+            })
+             .done(function (response) {
+              $(".modal-loader").hide();
+              $("#response-holder").html(response);
+            });
+        }
+        else {
+
+        }
+    });
+
+    $(".btnDeleteRole").click(function () {
+        debugger;
+        var roleId = $(this).attr("data-id");
+
+        if (roleId != undefined && roleId != null) {
+            $.ajax({
+                url: "@Url.Action("DeleteUserRole", "Dashboard", new {userID = Model.User.Id })",
+                data:{
+                roleID : roleId
+                }
+        })
+        .done(function (response) {
+            $(".modal-loader").hide();
+            $("#response-holder").html(response);
+        });
+    }
+    else {
+
+    }
+    });
+</script>

@@ -1,0 +1,90 @@
+﻿@model DealDouble.Web.ViewModels.RolesListingViewModel
+
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Role ID</th>
+            <th>Role Name</th>
+            <th>Users </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Roles != null && Model.Roles.Count > 0)
+        {
+            foreach (var role in Model.Roles)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => role.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => role.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => role.Users.Count)
+                    </td>
+
+                    <td>
+                        @*
+                            @Html.ActionLink("Details", "Details", new { id = user.Id }) |
+                                                    <a href="@Url.Action("userDatails","Dashboard",new { userID=user.Id})" class="moreButton btn btn-primary">More Details</a>
+
+                        *@
+                        <button class="moreButton btn btn-primary" data-id="@role.Id" data-toggle="modal" data-target="#formModal">More Details</button>
+
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td class="text-center" colspan="7">No result found.</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@if (Model.Pager != null && Model.Pager.TotalPages > 0)
+{
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            @if (Model.Pager.CurrentPage == 1)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Users","Dashboard",new { pageNo=Model.Pager.CurrentPage - 1 , searchTerm=Model.SearchTerm})">Previous</a>
+                </li>
+            }
+
+            @for (int page = Model.Pager.StartPage; page < Model.Pager.EndPage + 1; page++)
+            {
+                var active = page == Model.Pager.CurrentPage ? "active" : string.Empty;
+                <li class="page-item @active"><a class="page-link" href="@Url.Action("Users","Dashboard",new { pageNo = page, searchTerm=Model.SearchTerm })">@page</a></li>
+            }
+
+            @if (Model.Pager.CurrentPage == Model.Pager.EndPage)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Users","Dashboard",new { pageNo=Model.Pager.CurrentPage + 1 , searchTerm=Model.SearchTerm})">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+
